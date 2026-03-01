@@ -3,224 +3,272 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Neon Runner</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<title>Neon Runner Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
-  body { font-family: 'Orbitron', monospace; touch-action: none; user-select: none; -webkit-user-select: none; }
-  #gameCanvas { display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
-  #loading {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: #000; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; z-index: 999; gap: 16px;
-  }
-  #loading-text { color: #00f0ff; font-size: 14px; letter-spacing: 3px; font-family: monospace; }
-  #loading-bar-wrap { width: 160px; height: 4px; background: rgba(0,240,255,0.2); border-radius: 2px; }
-  #loading-bar { height: 100%; width: 0%; background: #00f0ff; border-radius: 2px; transition: width 0.3s; box-shadow: 0 0 8px #00f0ff; }
-  #hud { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 10; display: none; }
-  #health-container { position: absolute; top: 18px; left: 18px; display: flex; align-items: center; gap: 10px; }
-  #health-bar-wrap { width: 140px; height: 16px; background: rgba(0,240,255,0.15); border-radius: 8px; border: 1px solid #00f0ff55; overflow: hidden; }
-  #health-bar { height: 100%; background: linear-gradient(90deg,#00ff88,#00f0ff); width: 100%; transition: width 0.3s; }
-  #score-display { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 28px; font-weight: 900; text-shadow: 0 0 20px #00f0ff; letter-spacing: 4px; }
-  #joystick-area { position: absolute; bottom: 30px; left: 30px; width: 120px; height: 120px; pointer-events: all; }
-  #joystick-base { width: 120px; height: 120px; border-radius: 50%; background: rgba(0,240,255,0.1); border: 2px solid rgba(0,240,255,0.4); position: relative; }
-  #joystick-knob { width: 48px; height: 48px; border-radius: 50%; background: #00f0ff; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); box-shadow: 0 0 15px #00f0ff; }
-  #overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,5,20,0.95); display: flex; flex-direction: column;
-    align-items: center; justify-content: center; z-index: 100; gap: 20px;
-  }
-  #overlay h1 { font-size: 36px; color: #00f0ff; text-shadow: 0 0 30px #00f0ff; text-align: center; }
-  #start-btn {
-    padding: 16px 56px; background: transparent; border: 2px solid #00f0ff;
-    color: #00f0ff; font-family: 'Orbitron'; font-size: 16px; cursor: pointer;
-  }
+    :root {
+        --neon-cyan: #00f0ff;
+        --neon-pink: #ff007f;
+        --hud-bg: rgba(0, 20, 30, 0.7);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+        background: #000; 
+        color: white; 
+        font-family: 'Orbitron', sans-serif; 
+        overflow: hidden; 
+        touch-action: none;
+    }
+
+    #game-container { position: relative; width: 100vw; height: 100vh; }
+    canvas { display: block; }
+
+    /* HUD UX/UI */
+    #hud {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none; padding: 20px;
+        display: flex; flex-direction: column; justify-content:空间-between;
+    }
+
+    .hud-top { display: flex; justify-content: space-between; align-items: flex-start; }
+
+    /* Health Bar */
+    .status-frame {
+        background: var(--hud-bg);
+        border-left: 4px solid var(--neon-cyan);
+        padding: 10px 20px;
+        clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
+        box-shadow: -5px 0 15px rgba(0, 240, 255, 0.3);
+    }
+
+    .health-bar-container {
+        width: 150px; height: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        margin-top: 5px; position: relative;
+    }
+    #health-fill {
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, var(--neon-cyan), #fff);
+        box-shadow: 0 0 10px var(--neon-cyan);
+        transition: width 0.3s ease;
+    }
+
+    /* Score */
+    .score-container { text-align: right; }
+    #score-val { 
+        font-size: 32px; font-weight: 900; color: var(--neon-cyan);
+        text-shadow: 0 0 15px var(--neon-cyan);
+    }
+    .label { font-size: 10px; letter-spacing: 2px; opacity: 0.7; }
+
+    /* Joystick Area */
+    #controls {
+        position: absolute; bottom: 40px; left: 40px;
+        width: 120px; height: 120px;
+        border: 2px solid rgba(0, 240, 255, 0.2);
+        border-radius: 50%; pointer-events: all;
+    }
+    #joystick {
+        position: absolute; top: 50%; left: 50%;
+        width: 50px; height: 50px;
+        background: var(--neon-cyan);
+        border-radius: 50%; transform: translate(-50%, -50%);
+        box-shadow: 0 0 20px var(--neon-cyan);
+        opacity: 0.6;
+    }
+
+    /* Overlays */
+    .overlay {
+        position: absolute; inset: 0;
+        background: rgba(0,0,0,0.85);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        z-index: 100; backdrop-filter: blur(5px);
+    }
+
+    .btn-start {
+        padding: 15px 40px; background: transparent;
+        border: 2px solid var(--neon-cyan); color: var(--neon-cyan);
+        font-family: 'Orbitron'; font-weight: bold; cursor: pointer;
+        transition: 0.3s; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+    }
+    .btn-start:hover { background: var(--neon-cyan); color: black; box-shadow: 0 0 30px var(--neon-cyan); }
+
+    .scanline {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to bottom, transparent 50%, rgba(0, 240, 255, 0.05) 51%);
+        background-size: 100% 4px; pointer-events: none;
+    }
 </style>
 </head>
 <body>
 
-<div id="loading">
-  <div id="loading-text">YUKLANMOQDA...</div>
-  <div id="loading-bar-wrap"><div id="loading-bar"></div></div>
-</div>
+<div id="game-container">
+    <canvas id="c"></canvas>
+    <div class="scanline"></div>
 
-<canvas id="gameCanvas"></canvas>
+    <div id="hud" style="display: none;">
+        <div class="hud-top">
+            <div class="status-frame">
+                <div class="label">SYSTEM INTEGRITY</div>
+                <div class="health-bar-container"><div id="health-fill"></div></div>
+            </div>
+            <div class="score-container">
+                <div class="label">DISTANCE</div>
+                <div id="score-val">0000</div>
+            </div>
+        </div>
+        <div id="controls">
+            <div id="joystick"></div>
+        </div>
+    </div>
 
-<div id="hud">
-  <div id="health-container">
-    <div id="health-bar-wrap"><div id="health-bar"></div></div>
-  </div>
-  <div id="score-display">0</div>
-  <div id="joystick-area">
-    <div id="joystick-base"><div id="joystick-knob"></div></div>
-  </div>
-</div>
-
-<div id="overlay" style="display:none">
-  <h1>NEON<br>RUNNER</h1>
-  <p id="final-score" style="color:white; display:none;"></p>
-  <button id="start-btn">BOSHLASH</button>
+    <div id="menu" class="overlay">
+        <h1 style="color: var(--neon-cyan); margin-bottom: 20px; letter-spacing: 10px;">NEON RUNNER</h1>
+        <p id="last-score" style="margin-bottom: 20px; color: var(--neon-pink);"></p>
+        <button class="btn-start" onclick="startGame()">INITIALIZE</button>
+    </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-  let scene, camera, renderer, road, character, ufo;
-  let obstacles = [], buildings = [], flyers = [];
-  let gameRunning = false, score = 0, health = 100, spd = 0.4;
-  let targetX = 0, playerX = 0, frameCount = 0;
+let scene, camera, renderer, player, clock;
+let obstacles = [], grid;
+let gameActive = false, score = 0, health = 100;
+let targetX = 0, currentX = 0;
 
-  const canvas = document.getElementById('gameCanvas');
-  const hud = document.getElementById('hud');
-  const overlay = document.getElementById('overlay');
-  const startBtn = document.getElementById('start-btn');
-  const healthBar = document.getElementById('health-bar');
-  const scoreEl = document.getElementById('score-display');
-
-  // Yuklash jarayoni simulyatsiyasi
-  window.onload = () => {
-    let bar = document.getElementById('loading-bar');
-    let p = 0;
-    let iv = setInterval(() => {
-      p += 10;
-      bar.style.width = p + '%';
-      if(p >= 100) {
-        clearInterval(iv);
-        document.getElementById('loading').style.display = 'none';
-        overlay.style.display = 'flex';
-        initEngine();
-      }
-    }, 100);
-  };
-
-  function initEngine() {
+function init() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020818);
-    scene.fog = new THREE.Fog(0x020818, 20, 100);
+    scene.fog = new THREE.Fog(0x000000, 10, 50);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    camera.position.set(0, 2, 6);
+
+    renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
-    const light = new THREE.DirectionalLight(0x00f0ff, 1);
-    light.position.set(0, 10, 10);
-    scene.add(light);
-    scene.add(new THREE.AmbientLight(0x404040));
+    // Neon Grid Floor
+    const gridSize = 100;
+    const gridDivisions = 50;
+    grid = new THREE.GridHelper(gridSize, gridDivisions, 0x00f0ff, 0x002233);
+    grid.position.y = 0;
+    scene.add(grid);
 
-    // Doimiy yo'l
-    const roadGeo = new THREE.PlaneGeometry(10, 2000);
-    const roadMat = new THREE.MeshStandardMaterial({ color: 0x050510 });
-    road = new THREE.Mesh(roadGeo, roadMat);
-    road.rotation.x = -Math.PI / 2;
-    scene.add(road);
+    // Ambient Lighting
+    const amb = new THREE.AmbientLight(0xffffff, 0.1);
+    scene.add(amb);
 
+    // Player Model (Futuristic Pyramid)
+    const geo = new THREE.ConeGeometry(0.4, 1, 4);
+    const mat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, wireframe: true });
+    player = new THREE.Mesh(geo, mat);
+    player.rotation.x = Math.PI / 2;
+    player.position.y = 0.5;
+    scene.add(player);
+
+    clock = new THREE.Clock();
     animate();
-  }
+}
 
-  function createCharacter() {
-    const g = new THREE.Group();
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1, 0.4), new THREE.MeshBasicMaterial({ color: 0x00f0ff, wireframe: true }));
-    body.position.y = 0.6;
-    g.add(body);
-    scene.add(g);
-    return g;
-  }
+function spawnObstacle() {
+    if(!gameActive) return;
+    const geo = new THREE.BoxGeometry(1, Math.random() * 3 + 1, 1);
+    const mat = new THREE.MeshBasicMaterial({ 
+        color: Math.random() > 0.5 ? 0xff007f : 0x00f0ff, 
+        wireframe: true 
+    });
+    const obs = new THREE.Mesh(geo, mat);
+    obs.position.set((Math.random() - 0.5) * 10, geo.parameters.height/2, -50);
+    scene.add(obs);
+    obstacles.push(obs);
+}
 
-  function spawnObstacle(z) {
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
-    mesh.position.set((Math.random() - 0.5) * 6, 0.5, z);
-    scene.add(mesh);
-    obstacles.push(mesh);
-  }
-
-  function initGame() {
-    // Tozalash
+function startGame() {
+    document.getElementById('menu').style.display = 'none';
+    document.getElementById('hud').style.display = 'flex';
+    health = 100; score = 0; gameActive = true;
+    currentX = 0; targetX = 0;
     obstacles.forEach(o => scene.remove(o));
     obstacles = [];
-    score = 0; health = 100; spd = 0.4; frameCount = 0;
-    
-    if (character) scene.remove(character);
-    character = createCharacter();
-    
-    camera.position.set(0, 3, 10);
-    character.position.set(0, 0, 5);
+    updateHUD();
+}
 
-    overlay.style.display = 'none';
-    hud.style.display = 'block';
-    gameRunning = true;
-  }
+function updateHUD() {
+    document.getElementById('health-fill').style.width = health + '%';
+    document.getElementById('score-val').textContent = Math.floor(score).toString().padStart(4, '0');
+}
 
-  // Joystick logikasi
-  let joystickDX = 0;
-  const knob = document.getElementById('joystick-knob');
-  document.getElementById('joystick-area').addEventListener('touchmove', (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.touches[0].clientX - (rect.left + rect.width/2);
-    joystickDX = Math.max(-1, Math.min(1, x / 40));
-    knob.style.left = (50 + joystickDX * 30) + '%';
-  });
-  document.getElementById('joystick-area').addEventListener('touchend', () => {
-    joystickDX = 0;
-    knob.style.left = '50%';
-  });
+// Joystick Logic
+const joystick = document.getElementById('joystick');
+const controls = document.getElementById('controls');
+controls.addEventListener('touchmove', (e) => {
+    const rect = controls.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left - rect.width/2;
+    const val = Math.max(-1, Math.min(1, x / 40));
+    targetX = val * 5;
+    joystick.style.left = `calc(50% + ${val * 30}px)`;
+});
+controls.addEventListener('touchend', () => {
+    targetX = 0;
+    joystick.style.left = '50%';
+});
 
-  function animate() {
+function animate() {
     requestAnimationFrame(animate);
-    if (!gameRunning) {
-      renderer.render(scene, camera);
-      return;
+    const delta = clock.getDelta();
+
+    if(gameActive) {
+        score += delta * 10;
+        
+        // Grid animation (Infinite movement)
+        grid.position.z += 0.5;
+        if(grid.position.z > 2) grid.position.z = 0;
+
+        // Player Movement Smoothing
+        currentX += (targetX - currentX) * 0.1;
+        player.position.x = currentX;
+        player.rotation.z = -currentX * 0.1;
+
+        // Obstacles logic
+        obstacles.forEach((o, i) => {
+            o.position.z += 0.5;
+            
+            // Collision detection
+            if(Math.abs(o.position.z - player.position.z) < 1 && Math.abs(o.position.x - player.position.x) < 1) {
+                health -= 1;
+                updateHUD();
+                if(health <= 0) endGame();
+            }
+
+            if(o.position.z > 10) {
+                scene.remove(o);
+                obstacles.splice(i, 1);
+            }
+        });
+
+        if(Math.random() < 0.05) spawnObstacle();
+        updateHUD();
     }
-
-    frameCount++;
-    score += 0.1;
-    scoreEl.textContent = Math.floor(score);
-
-    // Harakat
-    playerX += joystickDX * 0.15;
-    playerX = Math.max(-4, Math.min(4, playerX));
-    character.position.x = playerX;
-
-    // Kamera qahramonni kuzatadi
-    camera.position.z -= spd;
-    character.position.z = camera.position.z - 5; // Qahramon kamera oldida
-    camera.lookAt(character.position.x, 1, character.position.z - 5);
-
-    // Yo'lni qahramon bilan birga surish (cheksiz yo'l effekti)
-    road.position.z = character.position.z - 500;
-
-    // To'siqlar yaratish
-    if (frameCount % 60 === 0) {
-      spawnObstacle(character.position.z - 50);
-    }
-
-    // To'qnashuvni tekshirish
-    obstacles.forEach((o, index) => {
-      if (Math.abs(o.position.z - character.position.z) < 1 && Math.abs(o.position.x - character.position.x) < 0.8) {
-        health -= 10;
-        scene.remove(o);
-        obstacles.splice(index, 1);
-        healthBar.style.width = health + '%';
-        if (health <= 0) {
-          gameRunning = false;
-          overlay.style.display = 'flex';
-          document.getElementById('final-score').style.display = 'block';
-          document.getElementById('final-score').textContent = "BALL: " + Math.floor(score);
-          startBtn.textContent = "QAYTA BOSHLASH";
-        }
-      }
-    });
 
     renderer.render(scene, camera);
-  }
+}
 
-  startBtn.onclick = initGame;
-  
-  window.addEventListener('resize', () => {
+function endGame() {
+    gameActive = false;
+    document.getElementById('menu').style.display = 'flex';
+    document.getElementById('hud').style.display = 'none';
+    document.getElementById('last-score').textContent = `FINAL DISTANCE: ${Math.floor(score)}`;
+}
+
+window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-  });
+});
+
+init();
 </script>
 </body>
 </html>
