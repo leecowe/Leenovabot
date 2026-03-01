@@ -9,415 +9,218 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
   body { font-family: 'Orbitron', monospace; touch-action: none; user-select: none; -webkit-user-select: none; }
-
   #gameCanvas { display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
-
   #loading {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: #000; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; z-index: 999;
-    gap: 16px;
+    align-items: center; justify-content: center; z-index: 999; gap: 16px;
   }
   #loading-text { color: #00f0ff; font-size: 14px; letter-spacing: 3px; font-family: monospace; }
   #loading-bar-wrap { width: 160px; height: 4px; background: rgba(0,240,255,0.2); border-radius: 2px; }
   #loading-bar { height: 100%; width: 0%; background: #00f0ff; border-radius: 2px; transition: width 0.3s; box-shadow: 0 0 8px #00f0ff; }
-
   #hud { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 10; display: none; }
   #health-container { position: absolute; top: 18px; left: 18px; display: flex; align-items: center; gap: 10px; }
-  #health-icon { width: 44px; height: 44px; border: 2px solid #00f0ff; border-radius: 10px; background: rgba(0,240,255,0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px #00f0ff88; }
   #health-bar-wrap { width: 140px; height: 16px; background: rgba(0,240,255,0.15); border-radius: 8px; border: 1px solid #00f0ff55; overflow: hidden; }
-  #health-bar { height: 100%; background: linear-gradient(90deg,#00ff88,#00f0ff); width: 100%; transition: width 0.3s; box-shadow: 0 0 10px #00ff88; }
-  #score-display { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 28px; font-weight: 900; text-shadow: 0 0 20px #00f0ff, 0 0 40px #00f0ff88; letter-spacing: 4px; }
-  #drone-icon { position: absolute; top: 14px; right: 14px; width: 52px; height: 52px; border: 2px solid #00f0ff; border-radius: 12px; background: rgba(0,240,255,0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px #00f0ff88; }
-  #close-btn { position: absolute; top: 78px; left: 18px; width: 44px; height: 44px; border: 2px solid #00f0ff; border-radius: 10px; background: rgba(0,240,255,0.08); display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: all; }
-  #close-btn svg { width: 22px; height: 22px; stroke: #00f0ff; fill: none; stroke-width: 2.5; }
-  #right-btns { position: absolute; right: 14px; bottom: 180px; display: flex; flex-direction: column; gap: 12px; pointer-events: all; }
-  .side-btn { width: 50px; height: 50px; border-radius: 50%; background: rgba(0,240,255,0.1); border: 1.5px solid rgba(0,240,255,0.5); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-  .side-btn svg { width: 22px; height: 22px; stroke: #00f0ff; fill: none; stroke-width: 2; }
+  #health-bar { height: 100%; background: linear-gradient(90deg,#00ff88,#00f0ff); width: 100%; transition: width 0.3s; }
+  #score-display { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 28px; font-weight: 900; text-shadow: 0 0 20px #00f0ff; letter-spacing: 4px; }
   #joystick-area { position: absolute; bottom: 30px; left: 30px; width: 120px; height: 120px; pointer-events: all; }
-  #joystick-base { width: 120px; height: 120px; border-radius: 50%; background: rgba(0,240,255,0.07); border: 2px solid rgba(0,240,255,0.35); position: relative; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px #00f0ff22; }
-  #joystick-knob { width: 48px; height: 48px; border-radius: 50%; background: rgba(0,240,255,0.2); border: 2px solid #00f0ff; box-shadow: 0 0 16px #00f0ff; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
-  #action-btn { position: absolute; bottom: 30px; right: 24px; width: 72px; height: 72px; border-radius: 50%; background: rgba(0,240,255,0.12); border: 2.5px solid #00f0ff; box-shadow: 0 0 24px #00f0ff66; display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: all; }
-  #action-btn svg { width: 34px; height: 34px; fill: #00f0ff; }
-
+  #joystick-base { width: 120px; height: 120px; border-radius: 50%; background: rgba(0,240,255,0.1); border: 2px solid rgba(0,240,255,0.4); position: relative; }
+  #joystick-knob { width: 48px; height: 48px; border-radius: 50%; background: #00f0ff; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); box-shadow: 0 0 15px #00f0ff; }
   #overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,5,20,0.95); display: flex; flex-direction: column;
     align-items: center; justify-content: center; z-index: 100; gap: 20px;
   }
-  #overlay h1 { font-family: 'Orbitron', monospace; font-size: 36px; font-weight: 900; color: #00f0ff; text-shadow: 0 0 30px #00f0ff, 0 0 60px #00f0ff88; letter-spacing: 6px; text-align: center; line-height: 1.3; }
-  .subtitle { color: #ff00aa; font-size: 14px; letter-spacing: 3px; text-shadow: 0 0 15px #ff00aa; font-family: monospace; }
-  .score-text { color: #fff; font-size: 20px; text-shadow: 0 0 10px #00f0ff; letter-spacing: 2px; }
-  .neon-line { width: 200px; height: 2px; background: linear-gradient(90deg,transparent,#00f0ff,transparent); box-shadow: 0 0 10px #00f0ff; }
+  #overlay h1 { font-size: 36px; color: #00f0ff; text-shadow: 0 0 30px #00f0ff; text-align: center; }
   #start-btn {
-    margin-top: 10px; padding: 16px 56px;
-    background: transparent; border: 2px solid #00f0ff;
-    color: #00f0ff; font-family: 'Orbitron', monospace;
-    font-size: 16px; font-weight: 700; letter-spacing: 4px;
-    cursor: pointer; text-shadow: 0 0 10px #00f0ff;
-    box-shadow: 0 0 20px #00f0ff44; border-radius: 4px;
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
+    padding: 16px 56px; background: transparent; border: 2px solid #00f0ff;
+    color: #00f0ff; font-family: 'Orbitron'; font-size: 16px; cursor: pointer;
   }
 </style>
 </head>
 <body>
 
 <div id="loading">
-  <div class="neon-line"></div>
   <div id="loading-text">YUKLANMOQDA...</div>
   <div id="loading-bar-wrap"><div id="loading-bar"></div></div>
-  <div class="neon-line"></div>
 </div>
 
 <canvas id="gameCanvas"></canvas>
 
 <div id="hud">
   <div id="health-container">
-    <div id="health-icon">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="#00f0ff" stroke-width="2"/><path d="M8 12h8M12 8v8" stroke="#00f0ff" stroke-width="2.5" stroke-linecap="round"/></svg>
-    </div>
     <div id="health-bar-wrap"><div id="health-bar"></div></div>
   </div>
-  <div id="close-btn"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
   <div id="score-display">0</div>
-  <div id="drone-icon">
-    <svg viewBox="0 0 48 48" fill="none">
-      <circle cx="24" cy="24" r="7" fill="#00f0ff" opacity="0.8"/>
-      <circle cx="10" cy="10" r="5" stroke="#00f0ff" stroke-width="2"/>
-      <circle cx="38" cy="10" r="5" stroke="#00f0ff" stroke-width="2"/>
-      <circle cx="10" cy="38" r="5" stroke="#00f0ff" stroke-width="2"/>
-      <circle cx="38" cy="38" r="5" stroke="#00f0ff" stroke-width="2"/>
-      <line x1="14" y1="14" x2="19" y2="19" stroke="#00f0ff" stroke-width="2"/>
-      <line x1="34" y1="14" x2="29" y2="19" stroke="#00f0ff" stroke-width="2"/>
-      <line x1="14" y1="34" x2="19" y2="29" stroke="#00f0ff" stroke-width="2"/>
-      <line x1="34" y1="34" x2="29" y2="29" stroke="#00f0ff" stroke-width="2"/>
-    </svg>
-  </div>
-  <div id="right-btns">
-    <div class="side-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
-    <div class="side-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-    <div class="side-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-  </div>
   <div id="joystick-area">
     <div id="joystick-base"><div id="joystick-knob"></div></div>
   </div>
-  <div id="action-btn"><svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
 </div>
 
 <div id="overlay" style="display:none">
-  <div class="neon-line"></div>
   <h1>NEON<br>RUNNER</h1>
-  <div class="subtitle">CYBERPUNK EDITION</div>
-  <div class="neon-line"></div>
-  <div class="score-text" id="final-score" style="display:none"></div>
+  <p id="final-score" style="color:white; display:none;"></p>
   <button id="start-btn">BOSHLASH</button>
 </div>
 
-<!-- Three.js dinamik yuklash -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-(function() {
-  if (window.Telegram && window.Telegram.WebApp) {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-  }
+  let scene, camera, renderer, road, character, ufo;
+  let obstacles = [], buildings = [], flyers = [];
+  let gameRunning = false, score = 0, health = 100, spd = 0.4;
+  let targetX = 0, playerX = 0, frameCount = 0;
 
-  var loadingBar = document.getElementById('loading-bar');
-  var loadingEl  = document.getElementById('loading');
-  var overlay    = document.getElementById('overlay');
+  const canvas = document.getElementById('gameCanvas');
+  const hud = document.getElementById('hud');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+  const healthBar = document.getElementById('health-bar');
+  const scoreEl = document.getElementById('score-display');
 
-  // Progress animatsiya
-  var prog = 0;
-  var progInterval = setInterval(function() {
-    prog = Math.min(prog + Math.random() * 15, 85);
-    loadingBar.style.width = prog + '%';
-  }, 200);
-
-  // Three.js skriptni dinamik yuklash
-  var script = document.createElement('script');
-  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-  script.onload = function() {
-    clearInterval(progInterval);
-    loadingBar.style.width = '100%';
-    setTimeout(function() {
-      loadingEl.style.display = 'none';
-      overlay.style.display = 'flex';
-      initEngine();
-    }, 400);
+  // Yuklash jarayoni simulyatsiyasi
+  window.onload = () => {
+    let bar = document.getElementById('loading-bar');
+    let p = 0;
+    let iv = setInterval(() => {
+      p += 10;
+      bar.style.width = p + '%';
+      if(p >= 100) {
+        clearInterval(iv);
+        document.getElementById('loading').style.display = 'none';
+        overlay.style.display = 'flex';
+        initEngine();
+      }
+    }, 100);
   };
-  script.onerror = function() {
-    clearInterval(progInterval);
-    document.getElementById('loading-text').textContent = 'INTERNET KERAK!';
-    document.getElementById('loading-text').style.color = '#ff3300';
-  };
-  document.head.appendChild(script);
-})();
 
-function initEngine() {
-  var canvas = document.getElementById('gameCanvas');
-  var renderer, scene, camera;
+  function initEngine() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020818);
+    scene.fog = new THREE.Fog(0x020818, 20, 100);
 
-  try {
-    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
-  } catch(e) {
-    // WebGL ishlamasa canvas2D fallback
-    document.getElementById('loading').style.display = 'flex';
-    document.getElementById('loading-text').textContent = 'WebGL ISHLAMADI';
-    return;
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const light = new THREE.DirectionalLight(0x00f0ff, 1);
+    light.position.set(0, 10, 10);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0x404040));
+
+    // Doimiy yo'l
+    const roadGeo = new THREE.PlaneGeometry(10, 2000);
+    const roadMat = new THREE.MeshStandardMaterial({ color: 0x050510 });
+    road = new THREE.Mesh(roadGeo, roadMat);
+    road.rotation.x = -Math.PI / 2;
+    scene.add(road);
+
+    animate();
   }
 
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x020818);
-  scene.fog = new THREE.Fog(0x020818, 30, 120);
-
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
-  camera.position.set(0, 5, 10);
-  camera.lookAt(0, 2, 0);
-
-  // Yoruglik
-  scene.add(new THREE.AmbientLight(0x001020, 2));
-  var dirLight = new THREE.DirectionalLight(0x00f0ff, 1.5);
-  dirLight.position.set(5, 20, 5);
-  dirLight.castShadow = true;
-  scene.add(dirLight);
-
-  // Yulduzlar
-  var starGeo = new THREE.BufferGeometry();
-  var sp = new Float32Array(1500 * 3);
-  for (var i = 0; i < 1500; i++) {
-    sp[i*3]   = (Math.random()-0.5)*300;
-    sp[i*3+1] = Math.random()*80+10;
-    sp[i*3+2] = (Math.random()-0.5)*300;
-  }
-  starGeo.setAttribute('position', new THREE.BufferAttribute(sp, 3));
-  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.3, transparent: true, opacity: 0.8 })));
-
-  // Yo'l
-  var road = new THREE.Mesh(
-    new THREE.PlaneGeometry(6, 200),
-    new THREE.MeshStandardMaterial({ color: 0x050510, emissive: 0x000510, roughness: 0.8 })
-  );
-  road.rotation.x = -Math.PI/2;
-  scene.add(road);
-
-  var lineMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
-  [-1, 1].forEach(function(s) {
-    var m = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.02, 200), lineMat);
-    m.position.set(s*2.5, 0.01, 0);
-    scene.add(m);
-  });
-  for (var z = -100; z < 100; z += 4) {
-    var m = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.02, 2), new THREE.MeshBasicMaterial({ color: 0x00aaff }));
-    m.position.set(0, 0.01, z);
-    scene.add(m);
-  }
-
-  // Qahramon
   function createCharacter() {
-    var g = new THREE.Group();
-    var neon = new THREE.MeshBasicMaterial({ color: 0x00ff88, wireframe: true });
-    var dark = new THREE.MeshStandardMaterial({ color: 0x050520, emissive: 0x001530 });
-    [[0.6,0.8,0.3,1.0],[0.4,0.4,0.4,1.65]].forEach(function(p) {
-      var b = new THREE.Mesh(new THREE.BoxGeometry(p[0],p[1],p[2]), dark); b.position.y=p[3]; g.add(b);
-      var w = new THREE.Mesh(new THREE.BoxGeometry(p[0]+0.02,p[1]+0.02,p[2]+0.02), neon); w.position.y=p[3]; g.add(w);
-    });
-    [-1,1].forEach(function(s) {
-      var leg = new THREE.Mesh(new THREE.BoxGeometry(0.22,0.7,0.22), dark); leg.position.set(s*0.18,0.4,0); g.add(leg);
-      var legW = new THREE.Mesh(new THREE.BoxGeometry(0.24,0.72,0.24), neon); legW.position.set(s*0.18,0.4,0); g.add(legW);
-      var arm = new THREE.Mesh(new THREE.BoxGeometry(0.18,0.6,0.18), dark); arm.position.set(s*0.43,0.95,0); g.add(arm);
-      var armW = new THREE.Mesh(new THREE.BoxGeometry(0.20,0.62,0.20), neon); armW.position.set(s*0.43,0.95,0); g.add(armW);
-    });
-    var glow = new THREE.Mesh(new THREE.CircleGeometry(0.8,16), new THREE.MeshBasicMaterial({ color:0x00f0ff, transparent:true, opacity:0.3, side:THREE.DoubleSide }));
-    glow.rotation.x = -Math.PI/2; glow.position.y = 0.02; g.add(glow);
-    g.position.set(0,0,5); scene.add(g); return g;
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1, 0.4), new THREE.MeshBasicMaterial({ color: 0x00f0ff, wireframe: true }));
+    body.position.y = 0.6;
+    g.add(body);
+    scene.add(g);
+    return g;
   }
 
-  var bColors = [0xff00aa,0x00f0ff,0xff6600,0x9900ff,0x00ff44];
-  var buildings = [];
-  function spawnBuilding(zPos) {
-    [-1,1].forEach(function(side) {
-      var w=2+Math.random()*3, h=6+Math.random()*20, d=3+Math.random()*4;
-      var x = side*(4+w/2+Math.random()*2);
-      var mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), new THREE.MeshStandardMaterial({ color:0x030312, emissive:0x010110, roughness:0.9 }));
-      mesh.position.set(x,h/2,zPos); scene.add(mesh);
-      var edge = new THREE.Mesh(new THREE.BoxGeometry(w+0.05,h+0.05,d+0.05), new THREE.MeshBasicMaterial({ color:bColors[Math.floor(Math.random()*bColors.length)], wireframe:true }));
-      edge.position.copy(mesh.position); scene.add(edge);
-      buildings.push({ mesh:mesh, edge:edge });
-    });
-  }
-
-  var obstacles = [];
-  function spawnObstacle(zPos) {
-    var lane = (Math.floor(Math.random()*3)-1)*1.5;
-    var mesh = new THREE.Mesh(new THREE.BoxGeometry(1.2,1.2,1.2), new THREE.MeshStandardMaterial({ color:0xff2200, emissive:0x440000 }));
-    mesh.position.set(lane,0.6,zPos); scene.add(mesh);
-    var edge = new THREE.Mesh(new THREE.BoxGeometry(1.3,1.3,1.3), new THREE.MeshBasicMaterial({ color:0xff4400, wireframe:true }));
-    edge.position.copy(mesh.position); scene.add(edge);
-    obstacles.push({ mesh:mesh, edge:edge, x:lane, z:zPos });
-  }
-
-  function createUFO() {
-    var g = new THREE.Group();
-    g.add(new THREE.Mesh(new THREE.CylinderGeometry(3,5,1.2,16), new THREE.MeshStandardMaterial({ color:0x111133, emissive:0x000030, metalness:0.8 })));
-    var dome = new THREE.Mesh(new THREE.SphereGeometry(2,12,8,0,Math.PI*2,0,Math.PI/2), new THREE.MeshStandardMaterial({ color:0x003355, emissive:0x002244, transparent:true, opacity:0.8 }));
-    dome.position.y=0.6; g.add(dome);
-    for (var i=0;i<8;i++) {
-      var a=(i/8)*Math.PI*2;
-      var l=new THREE.Mesh(new THREE.SphereGeometry(0.25,6,6),new THREE.MeshBasicMaterial({ color:i%2===0?0xff00aa:0x00f0ff }));
-      l.position.set(Math.cos(a)*4.2,-0.3,Math.sin(a)*4.2); g.add(l);
-    }
-    g.position.set(0,35,-30); scene.add(g); return g;
-  }
-
-  var flyers = [];
-  function spawnFlyer() {
-    var mesh = new THREE.Mesh(new THREE.BoxGeometry(1.5,0.4,3), new THREE.MeshStandardMaterial({ color:0x0a0a2a, emissive:0x010120, metalness:0.7 }));
-    var side = Math.random()>0.5?1:-1;
-    mesh.position.set(side*(15+Math.random()*10), 10+Math.random()*15, -50);
-    var hl = new THREE.Mesh(new THREE.SphereGeometry(0.2,6,6), new THREE.MeshBasicMaterial({ color:0xffff00 }));
-    hl.position.set(0,0,1.5); mesh.add(hl);
+  function spawnObstacle(z) {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
+    mesh.position.set((Math.random() - 0.5) * 6, 0.5, z);
     scene.add(mesh);
-    flyers.push({ mesh:mesh, speed:0.3+Math.random()*0.4 });
-  }
-
-  // O'yin holati
-  var gameRunning=false, score=0, health=100, playerX=0, targetX=0, spd=0.3, frameCount=0;
-  var character, ufo;
-
-  var scoreEl   = document.getElementById('score-display');
-  var healthBar = document.getElementById('health-bar');
-  var finalScore = document.getElementById('final-score');
-  var startBtn  = document.getElementById('start-btn');
-  var hud       = document.getElementById('hud');
-
-  function clearScene() {
-    obstacles.forEach(function(o){ scene.remove(o.mesh); scene.remove(o.edge); }); obstacles.length=0;
-    buildings.forEach(function(b){ scene.remove(b.mesh); scene.remove(b.edge); }); buildings.length=0;
-    flyers.forEach(function(f){ scene.remove(f.mesh); }); flyers.length=0;
-    if (character) scene.remove(character);
-    if (ufo) scene.remove(ufo);
-  }
-
-  function updateHealth() {
-    healthBar.style.width = health + '%';
-    healthBar.style.background = health < 30 ? 'linear-gradient(90deg,#ff3300,#ff6600)' : 'linear-gradient(90deg,#00ff88,#00f0ff)';
-  }
-
-  function gameOver() {
-    gameRunning = false;
-    hud.style.display = 'none';
-    finalScore.textContent = 'BALL: ' + Math.floor(score);
-    finalScore.style.display = 'block';
-    startBtn.textContent = "QAYTA O'YNASH";
-    overlay.style.display = 'flex';
+    obstacles.push(mesh);
   }
 
   function initGame() {
-    clearScene();
-    score=0; health=100; playerX=0; targetX=0; spd=0.3; frameCount=0;
-    camera.position.set(0,5,10);
+    // Tozalash
+    obstacles.forEach(o => scene.remove(o));
+    obstacles = [];
+    score = 0; health = 100; spd = 0.4; frameCount = 0;
+    
+    if (character) scene.remove(character);
     character = createCharacter();
-    ufo = createUFO();
-    for (var z=-80; z<0; z-=20) spawnBuilding(z);
-    for (var i=0; i<5; i++) spawnFlyer();
-    for (var z2=-30; z2>-80; z2-=15) spawnObstacle(z2);
-    updateHealth();
+    
+    camera.position.set(0, 3, 10);
+    character.position.set(0, 0, 5);
+
+    overlay.style.display = 'none';
     hud.style.display = 'block';
     gameRunning = true;
   }
 
-  // Joystick
-  var joystickActive=false, joystickStartX=0, joystickDX=0;
-  var joystickKnob = document.getElementById('joystick-knob');
-  var joystickArea = document.getElementById('joystick-area');
-
-  joystickArea.addEventListener('touchstart', function(e) {
-    e.preventDefault(); joystickActive=true; joystickStartX=e.touches[0].clientX;
-  }, { passive:false });
-  joystickArea.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    if (!joystickActive) return;
-    var dx = e.touches[0].clientX - joystickStartX;
-    joystickDX = Math.max(-1, Math.min(1, dx/50));
-    joystickKnob.style.transform = 'translate(calc(-50% + ' + (joystickDX*35) + 'px), -50%)';
-  }, { passive:false });
-  joystickArea.addEventListener('touchend', function(e) {
-    e.preventDefault(); joystickActive=false; joystickDX=0;
-    joystickKnob.style.transform = 'translate(-50%, -50%)';
-  }, { passive:false });
-
-  document.addEventListener('keydown', function(e) { if(e.key==='ArrowLeft') joystickDX=-1; if(e.key==='ArrowRight') joystickDX=1; });
-  document.addEventListener('keyup',   function(e) { if(e.key==='ArrowLeft'||e.key==='ArrowRight') joystickDX=0; });
-
-  startBtn.addEventListener('click', function() {
-    overlay.style.display = 'none';
-    initGame();
+  // Joystick logikasi
+  let joystickDX = 0;
+  const knob = document.getElementById('joystick-knob');
+  document.getElementById('joystick-area').addEventListener('touchmove', (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.touches[0].clientX - (rect.left + rect.width/2);
+    joystickDX = Math.max(-1, Math.min(1, x / 40));
+    knob.style.left = (50 + joystickDX * 30) + '%';
+  });
+  document.getElementById('joystick-area').addEventListener('touchend', () => {
+    joystickDX = 0;
+    knob.style.left = '50%';
   });
 
-  document.getElementById('close-btn').addEventListener('click', function() {
-    if (window.Telegram && window.Telegram.WebApp) Telegram.WebApp.close();
-  });
-
-  window.addEventListener('resize', function() {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-  });
-
-  // Animatsiya
   function animate() {
     requestAnimationFrame(animate);
-    if (!gameRunning) { renderer.render(scene, camera); return; }
+    if (!gameRunning) {
+      renderer.render(scene, camera);
+      return;
+    }
 
     frameCount++;
-    score += spd * 2;
-    spd = 0.3 + score/5000;
-
-    targetX += joystickDX * 0.08;
-    targetX = Math.max(-2.2, Math.min(2.2, targetX));
-    playerX += (targetX - playerX) * 0.12;
-    character.position.x = playerX;
-    character.position.y = Math.sin(frameCount*0.15) * 0.1;
-    character.rotation.z = joystickDX * 0.08;
-
-    camera.position.x += (playerX*0.3 - camera.position.x) * 0.05;
-    camera.position.z -= spd;
-    character.position.z = camera.position.z + 7;
-    camera.lookAt(character.position.x*0.3, character.position.y+2, character.position.z-10);
-
-    if (frameCount % 40 === 0) spawnBuilding(character.position.z - 80);
-    if (frameCount % 80 === 0) spawnObstacle(character.position.z - 60);
-
-    ufo.position.z = character.position.z - 35;
-    ufo.rotation.y += 0.005;
-    ufo.position.x = Math.sin(frameCount*0.01)*8;
-    ufo.position.y = 32 + Math.sin(frameCount*0.02)*2;
-
-    flyers.forEach(function(f) {
-      f.mesh.position.z += f.speed;
-      if (f.mesh.position.z > character.position.z + 20) {
-        f.mesh.position.z = character.position.z - 80;
-        f.mesh.position.x = (Math.random()>0.5?1:-1)*(15+Math.random()*10);
-        f.mesh.position.y = 10+Math.random()*15;
-      }
-    });
-
-    obstacles.forEach(function(o) {
-      if (Math.abs(o.x - playerX) < 0.9 && Math.abs(o.z - character.position.z) < 1.2) {
-        health -= 3; updateHealth();
-        if (health <= 0) gameOver();
-      }
-    });
-
+    score += 0.1;
     scoreEl.textContent = Math.floor(score);
+
+    // Harakat
+    playerX += joystickDX * 0.15;
+    playerX = Math.max(-4, Math.min(4, playerX));
+    character.position.x = playerX;
+
+    // Kamera qahramonni kuzatadi
+    camera.position.z -= spd;
+    character.position.z = camera.position.z - 5; // Qahramon kamera oldida
+    camera.lookAt(character.position.x, 1, character.position.z - 5);
+
+    // Yo'lni qahramon bilan birga surish (cheksiz yo'l effekti)
+    road.position.z = character.position.z - 500;
+
+    // To'siqlar yaratish
+    if (frameCount % 60 === 0) {
+      spawnObstacle(character.position.z - 50);
+    }
+
+    // To'qnashuvni tekshirish
+    obstacles.forEach((o, index) => {
+      if (Math.abs(o.position.z - character.position.z) < 1 && Math.abs(o.position.x - character.position.x) < 0.8) {
+        health -= 10;
+        scene.remove(o);
+        obstacles.splice(index, 1);
+        healthBar.style.width = health + '%';
+        if (health <= 0) {
+          gameRunning = false;
+          overlay.style.display = 'flex';
+          document.getElementById('final-score').style.display = 'block';
+          document.getElementById('final-score').textContent = "BALL: " + Math.floor(score);
+          startBtn.textContent = "QAYTA BOSHLASH";
+        }
+      }
+    });
+
     renderer.render(scene, camera);
   }
 
-  animate();
-}
+  startBtn.onclick = initGame;
+  
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
 </script>
 </body>
 </html>
